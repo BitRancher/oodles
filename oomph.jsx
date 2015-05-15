@@ -1,5 +1,4 @@
-import React from 'react/addons';
-
+import React from 'react';
 
 var FONT_HEIGHT_FACTOR = 0.8;
 var FONT_WIDTH_FACTOR = 0.2;
@@ -7,6 +6,7 @@ var FONT_WIDTH_FACTOR = 0.2;
 // these are not static props to allow certain child style inheritance behaviors
 var DEFAULT_STYLE = {
   display: 'flex',
+  flexDirection: 'row',
   flexWrap: 'wrap',
   //alignItems: 'center',
   //alignSelf: 'center',
@@ -26,7 +26,8 @@ export default class FlexboxHelper extends React.Component {
     ref: 'me',
     t: 'div',
     debugGrid: false,
-    tWF: 1/2
+    tWF: 1/2,
+    root: false
   };
 
   state = { rootHeight: 0, rootWidth: 0 };
@@ -67,22 +68,22 @@ export default class FlexboxHelper extends React.Component {
     if (this.props.debugGrid && !newStyle.border){
       newStyle.border = 'thin solid gray';
     }
-
-    var totalCWF = 0, totalCHF = 0, testW = [], testH = [];
+    console.log(newStyle.flexDirection, newStyle);
+    var totalCWF = 0, totalCHF = 0;
     var flexKids = React.Children.map(children, child => {
       if (child.props){
         var newProps = {
-          key: child.key,
-          ref: child.ref,
           s: {},
           __isFlexChild: true
         };
+
         if (!child.props.wF){
-          newProps.wF = cWF || 1;
+          newProps.wF = cWF || (newStyle.flexDirection === 'column'? 1: (1 / React.Children.count(children)) );
         }
         if (!child.props.hF){
-          newProps.hF = cHF || 1;
+          newProps.hF = cHF || (newStyle.flexDirection === 'row'? 1: (1 / React.Children.count(children)) );
         }
+
         for (var styleKey in cS){
           newProps.s[styleKey] = cS[styleKey];
         }
@@ -98,11 +99,10 @@ export default class FlexboxHelper extends React.Component {
             newProps.s.border = 'thin solid gray';
           }
         }
+
         totalCWF += child.props.wF || newProps.wF;
         totalCHF += child.props.hF || newProps.hF;
-        testW.push(totalCWF);
-        testH.push(totalCHF);
-        return React.addons.cloneWithProps(child, newProps);
+        return React.cloneElement(child, newProps);
       } else {
         return child;
       }
@@ -131,21 +131,28 @@ export default class FlexboxHelper extends React.Component {
 
     this.rescale = () => {
       //console.log('rescaling');
-      this.setState(
-        { rootWidth: window.innerWidth, rootHeight: window.innerHeight },
-        () => {
-          if (this.props.tWF){
-            me.style.fontSize
-              = `${me.offsetWidth * this.props.tWF * FONT_WIDTH_FACTOR}px`;
-          } else if (this.props.tHF){
+      if (this.props.root){
+        this.setState({
+          rootWidth: (this.props.wF || 1) * window.innerWidth,
+          rootHeight: (this.props.hF || 1) * window.innerHeight
+        });
 
-
-            me.style.fontSize
-              = `${me.offsetHeight * this.props.tHF * FONT_HEIGHT_FACTOR}px`;
-          }
-        }.bind(this)
-      );
-    }.bind(this);
+        if (!this.props.wF || this.props.wF <= 1){
+          document.body.style.overflowX = 'hidden';
+        }
+        if (!this.props.hF || this.props.hF <= 1){
+          document.body.style.overflowY = 'hidden';
+        }
+      }
+      return;
+      if (this.props.tWF){
+        me.style.fontSize
+          = `${me.offsetWidth * this.props.tWF * FONT_WIDTH_FACTOR}px`;
+      } else if (this.props.tHF){
+        me.style.fontSize
+          = `${me.offsetHeight * this.props.tHF * FONT_HEIGHT_FACTOR}px`;
+      }
+    };
 
     this.rescale();
     setTimeout(this.rescale, 1000);
@@ -159,21 +166,6 @@ export default class FlexboxHelper extends React.Component {
   componentDidUpdate(){
     if (this.props.tWF && this.props.tHF){
       console.warn('Both tWF and tHF were set. Only tWF was used.');
-    }
-
-    if (this.props.__isFlexChild){
-      return;
-    }
-
-    if (window.innerWidth >= document.body.scrollWidth){
-      document.body.style.overflowX = 'hidden';
-    } else {
-      document.body.style.overflowX = 'auto';
-    }
-    if (window.innerHeight >= document.body.scrollHeight){
-      document.body.style.overflowY = 'hidden';
-    } else {
-      document.body.style.overflowY = 'auto';
     }
   }
 
