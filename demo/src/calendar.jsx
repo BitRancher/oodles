@@ -6,7 +6,7 @@ import O from '../../oomph';
 const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
 var dayRow = days.map(d =>
-  <O wF={1/7} crossAlign='end' dirAlign='center' s={{ padding: 5 }} >
+  <O wF={1/7} crossAlign='end' dirAlign='center' s={{ padding: 5 }} key={d}>
     {d}
   </O>
 );
@@ -14,7 +14,7 @@ var dayRow = days.map(d =>
 var dateCells = [];
 for (var i = 1; i <= 31; i++){
   dateCells.push(
-    <O wF={1/7} hF={1/5} s={{ padding: 5 }}>
+    <O wF={1/7} hF={1/5} s={{ padding: 5 }} key={i}>
       {i}
     </O>
   );
@@ -26,7 +26,7 @@ var horizontalLine = <O hF={1/5} s={{ borderBottom: 'thin solid gray' }} />;
 export default class Calendar extends React.Component {
 
   render(){
-    return <O root={true}>
+    return <O>
       <O hF={1/17}>
         {dayRow}
       </O>

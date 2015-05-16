@@ -37,7 +37,7 @@ export default class FlexO extends React.Component {
   render(){
     let {
       o, e, t, wF, hF, cWF, cHF, s, cS, tWF, tHF, root,
-      crossAlign, dirAlign, d,
+      crossAlign, dirAlign, d, reverse,
       devBorders, __isFlexChild,
       children, style,
       ...otherProps
