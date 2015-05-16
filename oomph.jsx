@@ -20,42 +20,61 @@ var DEFAULT_STYLE = {
 };
 
 
-export default class FlexboxHelper extends React.Component {
+export default class FlexO extends React.Component {
 
   static defaultProps = {
     ref: 'me',
     t: 'div',
-    debugGrid: false,
+    devBorders: false,
     tWF: 1/2,
-    root: false
+    root: false,
+    rootWidthCorrection: -14,
+    rootHeightCorrection: -14
   };
 
   state = { rootHeight: 0, rootWidth: 0 };
 
   render(){
     let {
-      o, t, wF, hF, cWF, cHF, s, cS, tWF, tHF,
+      o, e, t, wF, hF, cWF, cHF, s, cS, tWF, tHF, root,
+      crossAlign, dirAlign, d,
+      devBorders, __isFlexChild,
       children, style,
       ...otherProps
     } = this.props;
 
     var newStyle = {};
+
+    if (crossAlign === 'start'){
+      newStyle.alignItems = 'flex-start';
+    } else if (crossAlign === 'end'){
+      newStyle.alignItems = 'flex-end';
+    } else if (crossAlign){
+      newStyle.alignItems = crossAlign;
+    }
+
+    if (dirAlign === 'start'){
+      newStyle.justifyContent = 'flex-start';
+    } else if (dirAlign === 'end'){
+      newStyle.justifyContent = 'flex-end';
+    } else if (dirAlign){
+      newStyle.justifyContent = dirAlign;
+    }
+
     for (var styleKey in DEFAULT_STYLE){
       newStyle[styleKey] = DEFAULT_STYLE[styleKey];
     }
 
-    if (!otherProps.__isFlexChild){
+    if (root && !__isFlexChild){
       newStyle.position = 'relative';
-      newStyle.top = this.state.topAdjust;
-      newStyle.left = this.state.leftAdjust;
       newStyle.height = this.state.rootHeight * (hF || 1);
       newStyle.width = this.state.rootWidth * (wF || 1);
     } else {
       if (wF){
-        newStyle.width = (100 * wF) + '%';
+        newStyle.width = `${wF * 100}%`;
       }
       if (hF){
-        newStyle.height = (100 * hF) + '%';
+        newStyle.height = `${hF * 100}%`;
       }
     }
 
@@ -65,11 +84,17 @@ export default class FlexboxHelper extends React.Component {
     for (var styleKey in style){
       newStyle[styleKey] = style[styleKey];
     }
-    if (this.props.debugGrid && !newStyle.border){
-      newStyle.border = 'thin solid gray';
+
+    if (devBorders && !newStyle.border){
+      if (typeof devBorders === 'string' || devBorders instanceof String){
+        newStyle.border = devBorders;
+      } else {
+        newStyle.border = 'thin solid gray';
+      }
     }
-    console.log(newStyle.flexDirection, newStyle);
+
     var totalCWF = 0, totalCHF = 0;
+
     var flexKids = React.Children.map(children, child => {
       if (child.props){
         var newProps = {
@@ -77,12 +102,8 @@ export default class FlexboxHelper extends React.Component {
           __isFlexChild: true
         };
 
-        if (!child.props.wF){
-          newProps.wF = cWF || (newStyle.flexDirection === 'column'? 1: (1 / React.Children.count(children)) );
-        }
-        if (!child.props.hF){
-          newProps.hF = cHF || (newStyle.flexDirection === 'row'? 1: (1 / React.Children.count(children)) );
-        }
+        newProps.wF = child.props.wF || cWF || 1;
+        newProps.hF = child.props.hF || cHF || 1;
 
         for (var styleKey in cS){
           newProps.s[styleKey] = cS[styleKey];
@@ -93,58 +114,54 @@ export default class FlexboxHelper extends React.Component {
         for (var styleKey in child.props.style){
           newProps.s[styleKey] = child.props.style[styleKey];
         }
-        if (this.props.debugGrid){
-          newProps.debugGrid = true;
-          if (!newProps.s.border){
-            newProps.s.border = 'thin solid gray';
-          }
+
+        if (!child.props.devBorders){
+          newProps.devBorders = devBorders;
         }
 
-        totalCWF += child.props.wF || newProps.wF;
-        totalCHF += child.props.hF || newProps.hF;
+        totalCWF += newProps.wF;
+        totalCHF += newProps.hF;
+
         return React.cloneElement(child, newProps);
       } else {
         return child;
       }
     });
-    //console.log(testW, testH);
-    if (totalCWF <= 1){ //console.log('hiding x');
+
+    if (totalCWF <= 1){
       newStyle.overflowX = 'hidden';
     }
-    if (totalCHF <= 1){ //console.log('hiding y');
+    if (totalCHF <= 1){
       newStyle.overflowY = 'hidden';
     }
 
     return React.createElement(
-      o || t,
+      o || e || t,
       { style: newStyle, ...otherProps },
       flexKids
     );
   }
 
   componentDidMount(){
-
     var me = this.refs[this.props.ref].getDOMNode();
 
-    var rect = me.getBoundingClientRect();
-    this.setState({ topAdjust: -rect.top, leftAdjust: -rect.left });
-
     this.rescale = () => {
-      //console.log('rescaling');
       if (this.props.root){
         this.setState({
-          rootWidth: (this.props.wF || 1) * window.innerWidth,
-          rootHeight: (this.props.hF || 1) * window.innerHeight
+          rootWidth: window.innerWidth * (this.props.wF || 1) + this.props.rootWidthCorrection,
+          rootHeight: window.innerHeight * (this.props.hF || 1) + this.props.rootHeightCorrection
         });
 
-        if (!this.props.wF || this.props.wF <= 1){
+        if (!this.props.wF || (this.props.wF <= 1)){
           document.body.style.overflowX = 'hidden';
         }
-        if (!this.props.hF || this.props.hF <= 1){
+        if (!this.props.hF || (this.props.hF <= 1)){
           document.body.style.overflowY = 'hidden';
         }
       }
+
       return;
+
       if (this.props.tWF){
         me.style.fontSize
           = `${me.offsetWidth * this.props.tWF * FONT_WIDTH_FACTOR}px`;
@@ -155,7 +172,7 @@ export default class FlexboxHelper extends React.Component {
     };
 
     this.rescale();
-    setTimeout(this.rescale, 1000);
+
     window.addEventListener('resize', this.rescale);
   }
 
@@ -165,7 +182,18 @@ export default class FlexboxHelper extends React.Component {
 
   componentDidUpdate(){
     if (this.props.tWF && this.props.tHF){
-      console.warn('Both tWF and tHF were set. Only tWF was used.');
+      var message = 'Both tWF and tHF were set. Only tWF was used.';
+      console.warn(message, this);
+    }
+
+    if (this.props.s && this.props.style){
+      var message = 'Both s and style props were set. Properties in style will override properties in s.';
+      console.warn(message, this);
+    }
+
+    if (this.props.root && this.props.__isFlexChild){
+      var message = `This component's root prop = true, but it is the child of another root.`;
+      console.warn(message, this);
     }
   }
 
