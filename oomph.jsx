@@ -1,10 +1,10 @@
 import React from 'react';
 
-var FONT_HEIGHT_FACTOR = 0.8;
-var FONT_WIDTH_FACTOR = 0.2;
+const FONT_HEIGHT_FACTOR = 0.8;
+const FONT_WIDTH_FACTOR = 0.2;
 
 // these are not static props to allow certain child style inheritance behaviors
-var DEFAULT_STYLE = {
+const DEFAULT_STYLE = {
   display: 'flex',
   //flexDirection: 'row',
   flexWrap: 'wrap',
@@ -35,17 +35,17 @@ export default class FlexO extends React.Component {
   state = { rootHeight: 0, rootWidth: 0 };
 
   render(){
-    if (this.props.test) console.log('test', this);
-
     let {
-      o, e, t, wF, hF, cWF, cHF, s, cS, tWF, tHF, root,
-      crossAlign, dirAlign, d, reverse,
-      devBorders, __isFlexChild,
       children, style,
-      _id,
       ...otherProps
     } = this.props;
 
+    let { o, e, t, wF, hF, cWF, cHF, s, cS, tWF, tHF, root,
+      crossAlign, dirAlign, d, reverse,
+      devBorders, __isFlexChild
+    } = otherProps;
+
+    if (this.props.test){ console.log('test', this.props); }
     //console.log('root check', root, __isFlexChild, this);
 
     var newStyle = {};
@@ -86,8 +86,13 @@ export default class FlexO extends React.Component {
       newStyle.height = this.state.rootHeight * (hF || 1);
       newStyle.width = this.state.rootWidth * (wF || 1);
     } else {
-      newStyle.width = `${(wF || 1) * 100}%`;
-      newStyle.height = `${(hF || 1) * 100}%`;
+      if (1 || wF){
+        newStyle.width = `${(wF || 1) * 100}%`;
+      }
+      if (1 || hF){
+        if (this.props.test){ console.log('test hF', `${(hF || 1) * 100}%`); }
+        newStyle.height = `${(hF || 1) * 100}%`;
+      }
     }
 
     for (var styleKey in s){
@@ -105,13 +110,17 @@ export default class FlexO extends React.Component {
       }
     }
 
-    console.log('flex dir', d, newStyle.flexDirection);
+    //console.log('flex dir', d, newStyle.flexDirection);
     newStyle.flexDirection = newStyle.flexDirection || 'row';
 
     var wLeft = 1, hLeft = 1;
     var noWFCount = 0, noHFCount = 0;
 
     React.Children.forEach(children, c => {
+      if (!c){
+        return;
+      }
+
       if (!c.props) {
         noWFCount++;
         noHFCount++;
@@ -130,12 +139,7 @@ export default class FlexO extends React.Component {
     });
     wLeft = Math.max(wLeft, 0);
     hLeft = Math.max(hLeft, 0);
-    /*if (wLeft < 0.00001){
-      wLeft = 0;
-    }
-    if (hLeft < 0.00001){
-      hLeft = 0;
-    }*/
+
     var kidCount = React.Children.count(children);
 
 
@@ -145,22 +149,31 @@ export default class FlexO extends React.Component {
 
     var totalCWF = 0, totalCHF = 0;
     var flexKids = React.Children.map(children, (c, i) => {
+      if (!c){
+        return;
+      }
+
       if (c.props){
         var newProps = {
           s: {},
-          __isFlexc: true
+          __isFlexChild: true
         };
-
+        for (var pKey in c.props){
+          if (c.props.test){
+            console.log('test', pKey, c.props[pKey]);
+          }
+          newProps[pKey] = c.props[pKey];
+        }
         //console.log(autoKidWF, autoKidHF, kidCount);
 
 
         newProps.wF = c.props.wF || cWF  || (autoKidWF? (wLeft/noWFCount): 1);
         newProps.hF = c.props.hF || cHF  || (autoKidHF? (hLeft/noHFCount): 1);
 
-        if (autoKidWF && !autoKidHF){
-          console.log(_id, autoKidWF? 'auto w': '', autoKidHF? 'auto h': '');
-          console.log(_id, 'w left', wLeft, 'h left', hLeft, 'no w', noWFCount, 'no h', noHFCount, 'out of', kidCount, 'd', d, 'w each', wLeft/noWFCount, 'h each', hLeft/noHFCount, 'wF', newProps.wF);
-        }
+        /*if (autoKidWF && !autoKidHF){
+          console.log(autoKidWF? 'auto w': '', autoKidHF? 'auto h': '');
+          console.log('w left', wLeft, 'h left', hLeft, 'no w', noWFCount, 'no h', noHFCount, 'out of', kidCount, 'd', d, 'w each', wLeft/noWFCount, 'h each', hLeft/noHFCount, 'wF', newProps.wF);
+        }*/
         //console.log('new props', newProps.wF, newProps.hF);
 
         for (var styleKey in cS){
@@ -180,13 +193,11 @@ export default class FlexO extends React.Component {
         totalCWF += newProps.wF;
         totalCHF += newProps.hF;
 
-        if (root || !_id){
-          newProps._id = '.' + i;
-        } else {
-          newProps._id = _id + '.' + i;
+        if (this.props.pTest){
+          console.log('p kid props', newProps);
         }
 
-        return React.cloneElement(c, newProps);
+        return React.cloneElement(c, newProps, c.props.children);
       } else {
         return c;
       }
@@ -199,6 +210,8 @@ export default class FlexO extends React.Component {
       newStyle.overflowY = 'hidden';
     }
 
+    if (this.props.test){ console.log('kid test', this.props); }
+
     return React.createElement(
       o || e || t || 'div',
       { style: newStyle, ...otherProps },
@@ -207,8 +220,6 @@ export default class FlexO extends React.Component {
   }
 
   componentDidMount(){
-    //var me = this.refs[this.props.ref].getDOMNode();
-
     this.rescale = () => {
       if (this.props.root){
         this.setState({
