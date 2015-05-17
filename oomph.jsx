@@ -106,66 +106,78 @@ export default class FlexO extends React.Component {
 
     var wLeft = 1, hLeft = 1;
     var noWFCount = 0, noHFCount = 0;
+
     React.Children.forEach(children, c => {
       if (!c.props) {
         noWFCount++;
         noHFCount++;
         return;
       }
+
       if (!c.props.wF && !cWF){
         noWFCount++;
       }
       if (!c.props.hF && !cHF){
         noHFCount++;
       }
+
       wLeft -= c.props.wF || cWF || 0;
       hLeft -= c.props.hF || cHF || 0;
     });
-    wLeft = Math.max(wLeft, 0);
-    hLeft = Math.max(hLeft, 0);
+
+    if (wLeft < 0.00001){
+      wLeft = 0;
+    }
+    if (hLeft < 0.00001){
+      hLeft = 0;
+    }
     var kidCount = React.Children.count(children);
 
-    //console.log('w left', wLeft, 'h left', hLeft, 'no w', noWFCount, 'no h', noHFCount, 'out of', kidCount, 'd', d);
 
-    var autoKidWF = noWFCount === kidCount && d.startsWith('row') && wLeft > 0;
-    var autoKidHF = noHFCount === kidCount && d.startsWith('col') && hLeft > 0;
+    var autoKidWF = noWFCount && (noWFCount === kidCount) && d.startsWith('row') && wLeft;
+    var autoKidHF = noHFCount && (noHFCount === kidCount) && d.startsWith('col') && hLeft;
     //if (autoKidWF && autoKidHF){ console.log('wwwww'); }
 
     var totalCWF = 0, totalCHF = 0;
-    var flexKids = React.Children.map(children, child => {
-      if (child.props){
+    var flexKids = React.Children.map(children, c => {
+      if (c.props){
         var newProps = {
           s: {},
-          __isFlexChild: true
+          __isFlexc: true
         };
 
         //console.log(autoKidWF, autoKidHF, kidCount);
 
-        newProps.wF = child.props.wF || cWF || 1 || ((autoKidWF && 1)? (wLeft/noWFCount): 1);
-        newProps.hF = child.props.hF || cHF || 1 || ((autoKidHF && 1)? (hLeft/noHFCount): 1);
 
+        newProps.wF = c.props.wF || cWF || 1 || ((autoKidWF && !autoKidHF)? (wLeft/noWFCount): 1);
+        newProps.hF = c.props.hF || cHF || 1 || ((autoKidHF && !autoKidWF)? (hLeft/noHFCount): 1);
+
+        if (autoKidWF && !autoKidHF){
+          console.log(autoKidWF? 'auto w': '', autoKidHF? 'auto h': '');
+          console.log('w left', wLeft, 'h left', hLeft, 'no w', noWFCount, 'no h', noHFCount, 'out of', kidCount, 'd', d, 'w each', wLeft/noWFCount, 'h each', hLeft/noHFCount, 'wF', newProps.wF);
+        }
         //console.log('new props', newProps.wF, newProps.hF);
 
         for (var styleKey in cS){
           newProps.s[styleKey] = cS[styleKey];
         }
-        for (var styleKey in child.props.s){
-          newProps.s[styleKey] = child.props.s[styleKey];
+        for (var styleKey in c.props.s){
+          newProps.s[styleKey] = c.props.s[styleKey];
         }
-        for (var styleKey in child.props.style){
-          newProps.s[styleKey] = child.props.style[styleKey];
+        for (var styleKey in c.props.style){
+          newProps.s[styleKey] = c.props.style[styleKey];
         }
 
-        if (!child.props.devBorders){
+        if (!c.props.devBorders){
           newProps.devBorders = devBorders;
         }
 
         totalCWF += newProps.wF;
         totalCHF += newProps.hF;
 
-        return React.cloneElement(child, newProps);
+        return React.cloneElement(c, newProps);
       } else {
-        return child;
+        return c;
       }
     });
 
