@@ -3,11 +3,11 @@ import React from 'react';
 import O from '../../oomph';
 
 import Calendar from './calendar';
-
+import RowVsColumn from './row-vs-column';
 
 const demos = {
   'Calendar': Calendar,
-  'Test': 'div'
+  'Row Vs. Column': RowVsColumn
 };
 
 const renderDemoCell = (demoKey, clickHandler) => {
@@ -28,11 +28,11 @@ const renderDemos = (demos, clickHandler) => {
   return demoCells;
 };
 
-export default class Demo extends React.Component {
+export default class Home extends React.Component {
 
   static defaultProps = { onDemoClick(){} };
 
-  state = { currentDemo: 'Calendar' };
+  state = { currentDemo: null };
 
   render() {
     if (this.state.currentDemo){
@@ -49,7 +49,7 @@ export default class Demo extends React.Component {
           </O>
         </O>
 
-        <O hF={16/17}>
+        <O hF={16/17} cWF={1} test={true}>
           {React.createElement(demos[this.state.currentDemo])}
         </O>
       </O>

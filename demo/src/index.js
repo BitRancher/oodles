@@ -1,5 +1,5 @@
 import React from 'react';
-import Demo from './demo';
+import Home from './home';
 
 
-React.render(<Demo />, document.getElementById('root'));
+React.render(<Home />, document.getElementById('root'));

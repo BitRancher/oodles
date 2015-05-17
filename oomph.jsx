@@ -23,18 +23,20 @@ var DEFAULT_STYLE = {
 export default class FlexO extends React.Component {
 
   static defaultProps = {
-    ref: 'me',
-    t: 'div',
-    devBorders: false,
-    tWF: 1/2,
-    root: false,
-    rootWidthCorrection: -14,
-    rootHeightCorrection: -14
+    //ref: 'me',
+    //t: 'div',
+    //devBorders: false,
+    //tWF: 1/2,
+    //root: false,
+    //rootWidthMod: -14,
+    //rootHeightMod: -14
   };
 
   state = { rootHeight: 0, rootWidth: 0 };
 
   render(){
+    if (this.props.test) console.log('test', this);
+
     let {
       o, e, t, wF, hF, cWF, cHF, s, cS, tWF, tHF, root,
       crossAlign, dirAlign, d, reverse,
@@ -43,7 +45,20 @@ export default class FlexO extends React.Component {
       ...otherProps
     } = this.props;
 
+    //console.log('root check', root, __isFlexChild, this);
+
     var newStyle = {};
+
+    if(d){
+      if (reverse){
+        newStyle.flexDirection = `${d}-reverse`;
+      } else {
+        newStyle.flexDirection = d;
+      }
+    } else {
+      d = 'row';
+      newStyle.flexDirection = d;
+    }
 
     if (crossAlign === 'start'){
       newStyle.alignItems = 'flex-start';
@@ -70,12 +85,8 @@ export default class FlexO extends React.Component {
       newStyle.height = this.state.rootHeight * (hF || 1);
       newStyle.width = this.state.rootWidth * (wF || 1);
     } else {
-      if (wF){
-        newStyle.width = `${wF * 100}%`;
-      }
-      if (hF){
-        newStyle.height = `${hF * 100}%`;
-      }
+      newStyle.width = `${(wF || 1) * 100}%`;
+      newStyle.height = `${(hF || 1) * 100}%`;
     }
 
     for (var styleKey in s){
@@ -93,8 +104,34 @@ export default class FlexO extends React.Component {
       }
     }
 
-    var totalCWF = 0, totalCHF = 0;
+    var wLeft = 1, hLeft = 1;
+    var noWFCount = 0, noHFCount = 0;
+    React.Children.forEach(children, c => {
+      if (!c.props) {
+        noWFCount++;
+        noHFCount++;
+        return;
+      }
+      if (!c.props.wF && !cWF){
+        noWFCount++;
+      }
+      if (!c.props.hF && !cHF){
+        noHFCount++;
+      }
+      wLeft -= c.props.wF || cWF || 0;
+      hLeft -= c.props.hF || cHF || 0;
+    });
+    wLeft = Math.max(wLeft, 0);
+    hLeft = Math.max(hLeft, 0);
+    var kidCount = React.Children.count(children);
 
+    //console.log('w left', wLeft, 'h left', hLeft, 'no w', noWFCount, 'no h', noHFCount, 'out of', kidCount, 'd', d);
+
+    var autoKidWF = noWFCount === kidCount && d.startsWith('row') && wLeft > 0;
+    var autoKidHF = noHFCount === kidCount && d.startsWith('col') && hLeft > 0;
+    //if (autoKidWF && autoKidHF){ console.log('wwwww'); }
+
+    var totalCWF = 0, totalCHF = 0;
     var flexKids = React.Children.map(children, child => {
       if (child.props){
         var newProps = {
@@ -102,8 +139,12 @@ export default class FlexO extends React.Component {
           __isFlexChild: true
         };
 
-        newProps.wF = child.props.wF || cWF || 1;
-        newProps.hF = child.props.hF || cHF || 1;
+        //console.log(autoKidWF, autoKidHF, kidCount);
+
+        newProps.wF = child.props.wF || cWF || 1 || ((autoKidWF && 1)? (wLeft/noWFCount): 1);
+        newProps.hF = child.props.hF || cHF || 1 || ((autoKidHF && 1)? (hLeft/noHFCount): 1);
+
+        //console.log('new props', newProps.wF, newProps.hF);
 
         for (var styleKey in cS){
           newProps.s[styleKey] = cS[styleKey];
@@ -136,20 +177,20 @@ export default class FlexO extends React.Component {
     }
 
     return React.createElement(
-      o || e || t,
+      o || e || t || 'div',
       { style: newStyle, ...otherProps },
       flexKids
     );
   }
 
   componentDidMount(){
-    var me = this.refs[this.props.ref].getDOMNode();
+    //var me = this.refs[this.props.ref].getDOMNode();
 
     this.rescale = () => {
       if (this.props.root){
         this.setState({
-          rootWidth: window.innerWidth * (this.props.wF || 1) + this.props.rootWidthCorrection,
-          rootHeight: window.innerHeight * (this.props.hF || 1) + this.props.rootHeightCorrection
+          rootWidth: window.innerWidth * (this.props.wF || 1) + (this.props.rootWidthMod || -14),
+          rootHeight: window.innerHeight * (this.props.hF || 1) + (this.props.rootHeightMod || -14)
         });
 
         if (!this.props.wF || (this.props.wF <= 1)){
@@ -161,7 +202,7 @@ export default class FlexO extends React.Component {
       }
 
       return;
-
+      // TODO: fractional text sizing
       if (this.props.tWF){
         me.style.fontSize
           = `${me.offsetWidth * this.props.tWF * FONT_WIDTH_FACTOR}px`;
