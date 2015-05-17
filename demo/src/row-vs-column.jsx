@@ -7,7 +7,7 @@ export default class RowVsColumn extends React.Component {
 
   render(){
     return <O cWF={1/2}>
-      <O>
+      <O d='column'>
         <O>
           1
         </O>

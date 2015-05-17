@@ -26,7 +26,7 @@ for (var i = 1; i <= 31; i++){
 export default class Calendar extends React.Component {
 
   render(){
-    return <O>
+    return <O d='column'>
       <O hF={1/17}>
         {dayRow}
       </O>
@@ -41,7 +41,7 @@ export default class Calendar extends React.Component {
           {verticalLine}
         </O>
 
-        <O s={{ position: 'absolute' }}>
+        <O d='column' s={{ position: 'absolute' }}>
           {horizontalLine}
           {horizontalLine}
           {horizontalLine}

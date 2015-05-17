@@ -6,14 +6,14 @@ var FONT_WIDTH_FACTOR = 0.2;
 // these are not static props to allow certain child style inheritance behaviors
 var DEFAULT_STYLE = {
   display: 'flex',
-  flexDirection: 'row',
+  //flexDirection: 'row',
   flexWrap: 'wrap',
   //alignItems: 'center',
   //alignSelf: 'center',
   alignContent: 'flex-start',
   //justifyContent: 'center',
   overflow: 'auto',
-  //border: 'thin solid gray',
+  //border: 'thin solid aquamarine',
   boxSizing: 'border-box',
   margin: 0,
   padding: 0
@@ -42,6 +42,7 @@ export default class FlexO extends React.Component {
       crossAlign, dirAlign, d, reverse,
       devBorders, __isFlexChild,
       children, style,
+      _id,
       ...otherProps
     } = this.props;
 
@@ -56,8 +57,8 @@ export default class FlexO extends React.Component {
         newStyle.flexDirection = d;
       }
     } else {
-      d = 'row';
-      newStyle.flexDirection = d;
+      //d = 'row';
+      //newStyle.flexDirection = d;
     }
 
     if (crossAlign === 'start'){
@@ -104,6 +105,9 @@ export default class FlexO extends React.Component {
       }
     }
 
+    console.log('flex dir', d, newStyle.flexDirection);
+    newStyle.flexDirection = newStyle.flexDirection || 'row';
+
     var wLeft = 1, hLeft = 1;
     var noWFCount = 0, noHFCount = 0;
 
@@ -124,22 +128,23 @@ export default class FlexO extends React.Component {
       wLeft -= c.props.wF || cWF || 0;
       hLeft -= c.props.hF || cHF || 0;
     });
-
-    if (wLeft < 0.00001){
+    wLeft = Math.max(wLeft, 0);
+    hLeft = Math.max(hLeft, 0);
+    /*if (wLeft < 0.00001){
       wLeft = 0;
     }
     if (hLeft < 0.00001){
       hLeft = 0;
-    }
+    }*/
     var kidCount = React.Children.count(children);
 
 
-    var autoKidWF = noWFCount && (noWFCount === kidCount) && d.startsWith('row') && wLeft;
-    var autoKidHF = noHFCount && (noHFCount === kidCount) && d.startsWith('col') && hLeft;
+    var autoKidWF = noWFCount && newStyle.flexDirection.startsWith('row') && wLeft;
+    var autoKidHF = noHFCount && newStyle.flexDirection.startsWith('col') && hLeft;
     //if (autoKidWF && autoKidHF){ console.log('wwwww'); }
 
     var totalCWF = 0, totalCHF = 0;
-    var flexKids = React.Children.map(children, c => {
+    var flexKids = React.Children.map(children, (c, i) => {
       if (c.props){
         var newProps = {
           s: {},
@@ -149,12 +154,12 @@ export default class FlexO extends React.Component {
         //console.log(autoKidWF, autoKidHF, kidCount);
 
 
-        newProps.wF = c.props.wF || cWF || 1 || ((autoKidWF && !autoKidHF)? (wLeft/noWFCount): 1);
-        newProps.hF = c.props.hF || cHF || 1 || ((autoKidHF && !autoKidWF)? (hLeft/noHFCount): 1);
+        newProps.wF = c.props.wF || cWF  || (autoKidWF? (wLeft/noWFCount): 1);
+        newProps.hF = c.props.hF || cHF  || (autoKidHF? (hLeft/noHFCount): 1);
 
         if (autoKidWF && !autoKidHF){
-          console.log(autoKidWF? 'auto w': '', autoKidHF? 'auto h': '');
-          console.log('w left', wLeft, 'h left', hLeft, 'no w', noWFCount, 'no h', noHFCount, 'out of', kidCount, 'd', d, 'w each', wLeft/noWFCount, 'h each', hLeft/noHFCount, 'wF', newProps.wF);
+          console.log(_id, autoKidWF? 'auto w': '', autoKidHF? 'auto h': '');
+          console.log(_id, 'w left', wLeft, 'h left', hLeft, 'no w', noWFCount, 'no h', noHFCount, 'out of', kidCount, 'd', d, 'w each', wLeft/noWFCount, 'h each', hLeft/noHFCount, 'wF', newProps.wF);
         }
         //console.log('new props', newProps.wF, newProps.hF);
 
@@ -174,6 +179,12 @@ export default class FlexO extends React.Component {
 
         totalCWF += newProps.wF;
         totalCHF += newProps.hF;
+
+        if (root || !_id){
+          newProps._id = '.' + i;
+        } else {
+          newProps._id = _id + '.' + i;
+        }
 
         return React.cloneElement(c, newProps);
       } else {

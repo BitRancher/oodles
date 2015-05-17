@@ -12,7 +12,7 @@ const demos = {
 
 const renderDemoCell = (demoKey, clickHandler) => {
   var demo = React.createElement(demos[demoKey]);
-  return <O wF={1/2} hF={1/2} s={{ cursor: 'pointer' }}
+  return <O wF={1/2} hF={1/2} d='column' s={{ cursor: 'pointer' }}
     onClick={clickHandler.bind(this, demoKey)} key={demoKey}
   >
     <O hF={10/11}>{demo}</O>
@@ -36,7 +36,7 @@ export default class Home extends React.Component {
 
   render() {
     if (this.state.currentDemo){
-      return <O root={true}>
+      return <O root={true} d='column'>
         <O hF={1/17}>
           <O wF={1/5}>
             <button onClick={()=>{ this.setState({ currentDemo: null }); }}>
@@ -49,14 +49,14 @@ export default class Home extends React.Component {
           </O>
         </O>
 
-        <O hF={16/17} cWF={1} test={true}>
+        <O test={true}>
           {React.createElement(demos[this.state.currentDemo])}
         </O>
       </O>
     } else {
-      return <O root={true}>
+      return <O root={true} d='column'>
         <O e='h1' hF={1/17} dirAlign='center'>Demos</O>
-        <O hF={16/17}>
+        <O>
           {renderDemos(demos, this._onDemoClick.bind(this))}
         </O>
       </O>;
