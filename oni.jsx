@@ -26,7 +26,9 @@ export default class Oni extends React.Component {
     console.log('oni', this.props, this.state);
 
     var newStyle = {
-      position: 'absolute'
+      position: 'absolute',
+      //overflow: 'auto',
+      boxSizing: 'border-box'
     };
 
     if (oniRoot){
@@ -38,41 +40,63 @@ export default class Oni extends React.Component {
     var hP = _oniYUnit * oniH;
     console.log('w h', wP, hP, _oniXUnit, _oniYUnit, oniW, oniH);
 
-    if (typeof oniX !== 'undefined'){
-      newStyle.left = _oniXUnit * oniX;
-    } else {
+    /*if (typeof oniX === 'undefined'){
+      if (oniCol){
+
+      } else {
+        var unitsLeft = _oniI;
+        var y = 0;
+        while (unitsLeft > 0){
+          //if (unitsLeft - ){
+          //}
+        }
+      }
+    }
+
+    if (typeof oniY === 'undefined'){
       if (oniCol){
 
       } else {
 
       }
-    }
-
-    if (typeof oniY !== 'undefined'){
-      newStyle.top = _oniYUnit * oniY;
-    } else {
-      if (oniCol){
-
-      } else {
-
-      }
-    }
+    }*/
 
     var newKids = React.Children.map(children, (c, i) => {
-      console.log('kid', c);
+      console.log('kid', c, i);
       if (!c.props) {
         return c;
       }
 
-      return React.cloneElement(c, {
+      var moreProps = {
         _oniXUnit: wP / oniTW,
-        _oniYUnit: hP / oniTH,
-        _oniI: i
-      });
+        _oniYUnit: hP / oniTH
+      };
+
+      if (!c.props.oniX){
+        var unitsLeft = i + 1;
+        moreProps.oniY = 0;
+        while (unitsLeft){
+          if (unitsLeft - oniTW > 0){
+            unitsLeft -= oniTW;
+            moreProps.oniY++;
+          } else {
+            moreProps.oniX = unitsLeft - 1;
+            unitsLeft = 0;
+          }
+        }
+      }
+
+      /*if (!c.props.oniY){
+
+      }*/
+
+      return React.cloneElement(c, moreProps);
     });
 
     newStyle.width = wP;
     newStyle.height = hP;
+    newStyle.left = oniX * _oniXUnit;
+    newStyle.top = oniY * _oniYUnit;
 
     for (var key in style){
       newStyle[key] = style[key];
@@ -91,8 +115,8 @@ export default class Oni extends React.Component {
     this.rescale = () => {
       if (oniRoot){
         this.setState({
-          rootW: window.innerWidth * (oniW || 1) + (oniRootWMod || -14),
-          rootH: window.innerHeight * (oniH || 1) + (oniRootHMod || -14)
+          rootW: (window.innerWidth * oniW) + (oniRootWMod || -14),
+          rootH: (window.innerHeight * oniH) + (oniRootHMod || -14)
         });
 
         if (oniW <= 1){
