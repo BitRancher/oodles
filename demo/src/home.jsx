@@ -5,12 +5,13 @@ import O from '../../oomph';
 import Calendar from './calendar';
 import RowVsColumn from './row-vs-column';
 import Carousel from './carousel';
-
+import OniTest from './oni-test';
 
 const demos = {
   'Calendar': Calendar,
   'Row Vs. Column': RowVsColumn,
-  'Carousel': Carousel
+  'Carousel': Carousel,
+  'Oni': OniTest
 };
 
 const renderDemoCell = (demoKey, clickHandler) => {
@@ -61,7 +62,7 @@ export default class Home extends React.Component {
       </O>
     } else {
       return <O root={true} d='column'>
-        <O e='h1' hF={1/17} dirAlign='center'>Demos</O>
+        <O e='h1' hF={1/17} crossAlign='center'>Demos</O>
         <O>
           {renderDemos(demos, this._onDemoClick.bind(this))}
         </O>
