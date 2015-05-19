@@ -3,6 +3,18 @@ import React from 'react';
 import O from '../../oomph';
 
 
+const renderColorBlocks = num => {
+  var blocks = [];
+  for (var i = 0; i < num; i++){
+    blocks.push(<O wF={1/8}
+      s={{ backgroundColor: `hsl(${(i/num)*360},50%,90%)` }}
+    />);
+  }
+  return blocks;
+};
+
+//const renderRandBlock = () => ;
+
 export default class RowVsColumn extends React.Component {
 
   static defaultProps = {
@@ -10,28 +22,10 @@ export default class RowVsColumn extends React.Component {
   };
 
   render(){
-    return <O cWF={1/2}>
-      <O d='column'>
-        <O>
-          1
-        </O>
-
-        <O>
-          2
-        </O>
-
-        {false}
-      </O>
-
-      <O cHF={1/2}>
-        <O>
-          a
-        </O>
-
-        <O>
-          b
-        </O>
-      </O>
+    return <O>
+      <O wF={1/4} s={{ backgroundColor: 'hsl(90,50%,75%)' }} />
+      {renderColorBlocks(8)}
+      <O hF={1/2} wF={1/4} s={{ backgroundColor: 'hsl(270,50%,75%)' }} />
     </O>;
   }
 
