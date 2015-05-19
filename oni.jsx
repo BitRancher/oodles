@@ -17,19 +17,11 @@ export default class Oni extends React.Component {
     var {
       oniE, oniTW, oniTH, oniW, oniH,
       oniX, oniY,
-      oniCol, oniRoot,
+      oniCol, oniRoot, oniDev,
       _isOniKid, _oniXUnit, _oniYUnit,
       style, children,
       ...otherProps
     } = this.props;
-
-    console.log('oni', this.props, this.state);
-
-    var newStyle = {
-      position: 'absolute',
-      //overflow: 'auto',
-      boxSizing: 'border-box'
-    };
 
     if (oniRoot){
       _oniXUnit = this.state.rootW;
@@ -38,46 +30,37 @@ export default class Oni extends React.Component {
 
     var wP = _oniXUnit * oniW;
     var hP = _oniYUnit * oniH;
-    console.log('w h', wP, hP, _oniXUnit, _oniYUnit, oniW, oniH);
 
-    /*if (typeof oniX === 'undefined'){
-      if (oniCol){
+    //console.log('w h', wP, hP, _oniXUnit, _oniYUnit, oniW, oniH);
 
-      } else {
-        var unitsLeft = _oniI;
-        var y = 0;
-        while (unitsLeft > 0){
-          //if (unitsLeft - ){
-          //}
-        }
+    var slotsNeeded = React.Children.count(children);
+    var finalTW = oniTW;
+    if (oniCol){
+
+    } else {
+      while (finalTW * oniTH < slotsNeeded){
+        finalTW++;
       }
     }
 
-    if (typeof oniY === 'undefined'){
-      if (oniCol){
-
-      } else {
-
-      }
-    }*/
 
     var newKids = React.Children.map(children, (c, i) => {
-      console.log('kid', c, i);
       if (!c.props) {
         return c;
       }
 
       var moreProps = {
         _oniXUnit: wP / oniTW,
-        _oniYUnit: hP / oniTH
+        _oniYUnit: hP / oniTH,
+        oniDev
       };
 
       if (!c.props.oniX){
         var unitsLeft = i + 1;
         moreProps.oniY = 0;
         while (unitsLeft){
-          if (unitsLeft - oniTW > 0){
-            unitsLeft -= oniTW;
+          if (unitsLeft - finalTW > 0){
+            unitsLeft -= finalTW;
             moreProps.oniY++;
           } else {
             moreProps.oniX = unitsLeft - 1;
@@ -86,21 +69,35 @@ export default class Oni extends React.Component {
         }
       }
 
-      /*if (!c.props.oniY){
-
-      }*/
-
       return React.cloneElement(c, moreProps);
     });
+
+    var newStyle = {
+      position: 'absolute',
+      //overflow: 'auto',
+      boxSizing: 'border-box',
+    };
+
+    if (oniDev){
+      newStyle.border = 'thin solid hsl(120,50%,80%)';
+    }
 
     newStyle.width = wP;
     newStyle.height = hP;
     newStyle.left = oniX * _oniXUnit;
     newStyle.top = oniY * _oniYUnit;
 
+    if (finalTW > oniTW){
+      newStyle.overflowX = 'auto';
+    } else {
+      newStyle.overflowX = 'hidden';
+    }
+
     for (var key in style){
       newStyle[key] = style[key];
     }
+
+    //console.log('oni', this.props, finalTW, oniTW, newStyle.overflowX, this.state);
 
     return React.createElement(
       oniE,

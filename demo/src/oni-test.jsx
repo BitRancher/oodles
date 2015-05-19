@@ -6,7 +6,7 @@ export default class OniTest extends React.Component {
 
   render(){
     return <O oniRoot={true} oniTW={2} oniTH={3} oniDev={true}>
-      <O oniTH={3} style={{ overflowY: 'auto', overflowX: 'auto' }}>
+      <O oniTH={3}>
         <O>aaaaa</O>
         <O>bbbbb</O>
         <O>ccccc</O>
