@@ -35,14 +35,17 @@ export default class Oni extends React.Component {
 
     var slotsNeeded = React.Children.count(children);
     var finalTW = oniTW;
-    if (oniCol){
+    var finalTH = oniTH;
 
+    if (oniCol){
+      while (finalTH * oniTW < slotsNeeded){
+        finalTH++;
+      }
     } else {
       while (finalTW * oniTH < slotsNeeded){
         finalTW++;
       }
     }
-
 
     var newKids = React.Children.map(children, (c, i) => {
       if (!c.props) {
@@ -56,15 +59,19 @@ export default class Oni extends React.Component {
       };
 
       if (!c.props.oniX){
-        var unitsLeft = i + 1;
-        moreProps.oniY = 0;
-        while (unitsLeft){
-          if (unitsLeft - finalTW > 0){
-            unitsLeft -= finalTW;
-            moreProps.oniY++;
-          } else {
-            moreProps.oniX = unitsLeft - 1;
-            unitsLeft = 0;
+        if (oniCol){
+          
+        } else {
+          var unitsLeft = i + 1;
+          moreProps.oniY = 0;
+          while (unitsLeft){
+            if (unitsLeft - finalTW > 0){
+              unitsLeft -= finalTW;
+              moreProps.oniY++;
+            } else {
+              moreProps.oniX = unitsLeft - 1;
+              unitsLeft = 0;
+            }
           }
         }
       }
@@ -74,8 +81,7 @@ export default class Oni extends React.Component {
 
     var newStyle = {
       position: 'absolute',
-      //overflow: 'auto',
-      boxSizing: 'border-box',
+      boxSizing: 'border-box'
     };
 
     if (oniDev){
@@ -91,6 +97,12 @@ export default class Oni extends React.Component {
       newStyle.overflowX = 'auto';
     } else {
       newStyle.overflowX = 'hidden';
+    }
+
+    if (finalTH > oniTH){
+      newStyle.overflowY = 'auto';
+    } else {
+      newStyle.overflowY = 'hidden';
     }
 
     for (var key in style){

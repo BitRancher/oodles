@@ -10,6 +10,7 @@ export default class OniTest extends React.Component {
         <O>aaaaa</O>
         <O>bbbbb</O>
         <O>ccccc</O>
+        <O>ddddd</O>
       </O>
 
       <O oniTW={2} oniTH={2}>
