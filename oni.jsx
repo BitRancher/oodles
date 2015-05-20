@@ -58,9 +58,19 @@ export default class Oni extends React.Component {
         oniDev
       };
 
-      if (!c.props.oniX){
+      if (!c.props.oniX || !c.props.oniY){
         if (oniCol){
-          
+          var unitsLeft = i + 1;
+          moreProps.oniX = 0;
+          while (unitsLeft){
+            if (unitsLeft - finalTH > 0){
+              unitsLeft -= finalTH;
+              moreProps.oniX++;
+            } else {
+              moreProps.oniY = unitsLeft - 1;
+              unitsLeft = 0;
+            }
+          }
         } else {
           var unitsLeft = i + 1;
           moreProps.oniY = 0;
@@ -75,6 +85,14 @@ export default class Oni extends React.Component {
           }
         }
       }
+
+      if (c.props.oniX){
+        moreProps.oniX = c.props.oniX;
+      }
+      if (c.props.oniY){
+        moreProps.oniY = c.props.oniY;
+      }
+
 
       return React.cloneElement(c, moreProps);
     });
