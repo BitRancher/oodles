@@ -135,11 +135,16 @@ export default class Oni extends React.Component {
         }
       }
 
-      if (c.props.oniX){
+      if (typeof c.props.oniX !== 'undefined'){
         moreProps.oniX = c.props.oniX;
+      } else {
+        moreProps.oniX = coordArray[i].oniX;
       }
-      if (c.props.oniY){
+      
+      if (typeof c.props.oniY !== 'undefined'){
         moreProps.oniY = c.props.oniY;
+      } else {
+        moreProps.oniY = coordArray[i].oniY;
       }
 
 
