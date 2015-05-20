@@ -49,24 +49,39 @@ export default class Oni extends React.Component {
 
     var setSize = oniCol? oniTH: oniTW;
     var rightSizeFound = false;
+    var coordArray;
 
     while (!rightSizeFound) {
       var setCount = 1;
-      var currentUnitTotal = 0;
+      var currentSetTotal = 0;
 
+      coordArray = [];
       React.Children.forEach(children, c => {
         if (!c.props){
           return;
         }
 
+        var itemPos, setPos;
+
         var itemUnits = oniCol? c.props.oniH: c.props.oniW;
 
-        if ((currentUnitTotal + itemUnits) > setSize){
+        if ((currentSetTotal + itemUnits) > setSize){
+          itemPos = 0;
+          setPos = setCount;
+
           setCount++;
-          currentUnitTotal = 0;
+          currentSetTotal = 0;
+        } else {
+          itemPos = currentSetTotal;
+          setPos = setCount - 1;
         }
 
-        currentUnitTotal += itemUnits;
+        currentSetTotal += itemUnits;
+
+        coordArray.push({
+          oniX: oniCol? setPos: itemPos,
+          oniY: oniCol? itemPos: setPos
+        });
       });
 
       if (setCount <= (oniCol? oniTW: oniTH)){
@@ -76,7 +91,10 @@ export default class Oni extends React.Component {
       }
     }
 
-    console.log('set size', setSize, setCount, this.props);
+    if (coordArray.length){
+      console.log(JSON.stringify(coordArray.map(({ oniX, oniY }) => [oniX,oniY])),
+         setSize, setCount, this.props);
+    }
 
     var newKids = React.Children.map(children, (c, i) => {
       if (!c.props) {

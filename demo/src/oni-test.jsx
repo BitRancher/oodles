@@ -29,7 +29,7 @@ export default class OniTest extends React.Component {
       <O oniW={2}>
         <O oniW={2}>3</O>
       </O>
-      <O>4</O>
+      <O oniH={2}>4</O>
       <O>5</O>
       <O>6</O>
       <O>7</O>
