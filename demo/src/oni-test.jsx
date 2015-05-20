@@ -17,21 +17,22 @@ export default class OniTest extends React.Component {
         <O>ddddd</O>
       </O>
 
-      <O oniTW={2} oniTH={2}>
-        <O>aaaaa</O>
-        <O>bbbbb</O>
-        <O>ccccc</O>
-        <O>ddddd</O>
-        <O>eeeee</O>
-        <O>fffff</O>
+      <O oniTH={2}>
+        <O oniW={2}>aaaaa</O>
+        <O oniW={2}>bbbbb</O>
+        <O oniW={2}>ccccc</O>
+        <O oniW={2}>eeeee</O>
         <O>ggggg</O>
         <O>hhhhh</O>
       </O>
 
-      <O>3</O>
+      <O oniW={2}>
+        <O oniW={2}>3</O>
+      </O>
       <O>4</O>
       <O>5</O>
       <O>6</O>
+      <O>7</O>
     </O>;
   }
 

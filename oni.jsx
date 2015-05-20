@@ -47,6 +47,37 @@ export default class Oni extends React.Component {
       }
     }
 
+    var setSize = oniCol? oniTH: oniTW;
+    var rightSizeFound = false;
+
+    while (!rightSizeFound) {
+      var setCount = 1;
+      var currentUnitTotal = 0;
+
+      React.Children.forEach(children, c => {
+        if (!c.props){
+          return;
+        }
+
+        var itemUnits = oniCol? c.props.oniH: c.props.oniW;
+
+        if ((currentUnitTotal + itemUnits) > setSize){
+          setCount++;
+          currentUnitTotal = 0;
+        }
+
+        currentUnitTotal += itemUnits;
+      });
+
+      if (setCount <= (oniCol? oniTW: oniTH)){
+        rightSizeFound = true;
+      } else {
+        setSize++;
+      }
+    }
+
+    console.log('set size', setSize, setCount, this.props);
+
     var newKids = React.Children.map(children, (c, i) => {
       if (!c.props) {
         return c;
@@ -129,11 +160,9 @@ export default class Oni extends React.Component {
 
     //console.log('oni', this.props, finalTW, oniTW, newStyle.overflowX, this.state);
 
-    return React.createElement(
-      oniE,
-      { style: newStyle, ...otherProps },
-      newKids
-    );
+    return <oniE style={newStyle} {...otherProps}>
+      {newKids}
+    </oniE>;
   }
 
   componentDidMount(){
