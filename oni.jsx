@@ -8,7 +8,9 @@ export default class Oni extends React.Component {
     oniTW: 1,
     oniTH: 1,
     oniW: 1,
-    oniH: 1
+    oniH: 1,
+    oniXOffset: 0,
+    oniYOffset: 0
   };
 
   state = { rootW: 1, rootH: 1 };
@@ -16,12 +18,16 @@ export default class Oni extends React.Component {
   render(){
     var {
       oniE, oniTW, oniTH, oniW, oniH,
-      oniX, oniY,
-      oniCol, oniRoot, oniDev,
+      oniX, oniY, oniXOffset, oniYOffset,
+      oniCol, oniRoot, oniDev, oniCS,
       _isOniKid, _oniXUnit, _oniYUnit,
       style, children,
       ...otherProps
     } = this.props;
+
+    if (oniRoot && (this.state.rootW === null || this.state.rootH === null)){
+      return null;
+    }
 
     if (oniRoot){
       _oniXUnit = this.state.rootW;
@@ -104,56 +110,40 @@ export default class Oni extends React.Component {
       var moreProps = {
         _oniXUnit: wP / oniTW,
         _oniYUnit: hP / oniTH,
+        _isOniKid: true,
         oniDev
       };
-
-      if (!c.props.oniX || !c.props.oniY){
-        if (oniCol){
-          var unitsLeft = i + 1;
-          moreProps.oniX = 0;
-          while (unitsLeft){
-            if (unitsLeft - finalTH > 0){
-              unitsLeft -= finalTH;
-              moreProps.oniX++;
-            } else {
-              moreProps.oniY = unitsLeft - 1;
-              unitsLeft = 0;
-            }
-          }
-        } else {
-          var unitsLeft = i + 1;
-          moreProps.oniY = 0;
-          while (unitsLeft){
-            if (unitsLeft - finalTW > 0){
-              unitsLeft -= finalTW;
-              moreProps.oniY++;
-            } else {
-              moreProps.oniX = unitsLeft - 1;
-              unitsLeft = 0;
-            }
-          }
-        }
-      }
 
       if (typeof c.props.oniX !== 'undefined'){
         moreProps.oniX = c.props.oniX;
       } else {
         moreProps.oniX = coordArray[i].oniX;
       }
-      
+
       if (typeof c.props.oniY !== 'undefined'){
         moreProps.oniY = c.props.oniY;
       } else {
         moreProps.oniY = coordArray[i].oniY;
       }
 
+      if (oniCS){
+        moreProps.style = {};
+        for (var key in oniCS){
+          moreProps.style[key] = oniCS[key];
+        }
+        for (var key in c.props.style){
+          moreProps.style[key] = c.props.style[key];
+        }
+      }
 
       return React.cloneElement(c, moreProps);
     });
 
     var newStyle = {
-      position: 'absolute',
-      boxSizing: 'border-box'
+      position: oniRoot? 'fixed': 'absolute',
+      boxSizing: 'border-box',
+      //display: 'table',
+      //textAlign: 'start'
     };
 
     if (oniDev){
@@ -162,8 +152,8 @@ export default class Oni extends React.Component {
 
     newStyle.width = wP;
     newStyle.height = hP;
-    newStyle.left = oniX * _oniXUnit;
-    newStyle.top = oniY * _oniYUnit;
+    newStyle.left = ((oniX || 0) + oniXOffset) * _oniXUnit;
+    newStyle.top = ((oniY || 0) + oniYOffset) * _oniYUnit;
 
     if (finalTW > oniTW){
       newStyle.overflowX = 'auto';
@@ -183,28 +173,48 @@ export default class Oni extends React.Component {
 
     //console.log('oni', this.props, finalTW, oniTW, newStyle.overflowX, this.state);
 
-    return <oniE style={newStyle} {...otherProps}>
+    var OniE = oniE;
+
+    return <OniE style={newStyle} {...otherProps}>
       {newKids}
-    </oniE>;
+    </OniE>;
   }
 
   componentDidMount(){
-    var { oniRoot, oniW, oniH, oniRootHMod, oniRootWMod } = this.props;
+    var { oniRoot, oniW, oniH, _isOniKid } = this.props;
+
+    if (_isOniKid){
+      return;
+    }
+
+    var requestingFrame = false;
 
     this.rescale = () => {
-      if (oniRoot){
-        this.setState({
-          rootW: (window.innerWidth * oniW) + (oniRootWMod || -14),
-          rootH: (window.innerHeight * oniH) + (oniRootHMod || -14)
-        });
-
-        if (oniW <= 1){
-          document.body.style.overflowX = 'hidden';
-        }
-        if (oniH <= 1){
-          document.body.style.overflowY = 'hidden';
-        }
+      if (requestingFrame) {
+        return;
       }
+
+      requestAnimationFrame(() => {
+        if (oniRoot){
+          this.setState({
+            rootW: window.innerWidth * oniW,
+            rootH: window.innerHeight * oniH
+          });
+
+          if (oniW <= 1){
+            document.body.style.overflowX = 'hidden';
+          }
+          if (oniH <= 1){
+            document.body.style.overflowY = 'hidden';
+          }
+        } else {
+          var parent = React.findDOMNode(this).parentNode;
+          this.setState({
+            rootW: parent.offsetWidth,
+            rootH: parent.offsetHeight
+          });
+        }
+      });
     };
 
     this.rescale();

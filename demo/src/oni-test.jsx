@@ -6,13 +6,13 @@ import O from '../../oni';
 export default class OniTest extends React.Component {
 
   render(){
-    return <O oniRoot={true} oniTW={2} oniTH={3} oniDev={true}>
+    return <O oniRoot={1} oniTW={2} oniTH={3} oniCol={1} oniDev={1}>
       <O oniTH={3} oniCol={1}>
-        <O oniX={0.5} style={{overflow: 'visible', backgroundColor: 'pink' }}>tt</O>
-        <O>aaaaa</O>
+        <O style={{ backgroundColor: 'pink' }}>tt</O>
+        <O oniH={2}>aaaaa</O>
         <O>bbbbb</O>
         <O>ccccc</O>
-        <O>ddddd</O>
+        <O oniXOffset={0.2}>ddddd</O>
         <O>ccccc</O>
         <O>ddddd</O>
       </O>
@@ -26,7 +26,7 @@ export default class OniTest extends React.Component {
         <O>hhhhh</O>
       </O>
 
-      <O oniW={2}>
+      <O>
         <O oniW={2}>3</O>
       </O>
       <O oniH={2}>4</O>
