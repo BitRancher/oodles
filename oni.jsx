@@ -13,8 +13,6 @@ export default class Oni extends React.Component {
     oniYOffset: 0
   };
 
-  state = { rootW: 1, rootH: 1 };
-
   render(){
     var {
       oniE, oniTW, oniTH, oniW, oniH,
@@ -25,13 +23,9 @@ export default class Oni extends React.Component {
       ...otherProps
     } = this.props;
 
-    if (oniRoot && (this.state.rootW === null || this.state.rootH === null)){
-      return null;
-    }
-
     if (oniRoot){
-      _oniXUnit = this.state.rootW;
-      _oniYUnit = this.state.rootH;
+      _oniXUnit = 100;//this.state.rootW;
+      _oniYUnit = 100;//this.state.rootH;
     }
 
     var wP = _oniXUnit * oniW;
@@ -108,8 +102,8 @@ export default class Oni extends React.Component {
       }
 
       var moreProps = {
-        _oniXUnit: wP / oniTW,
-        _oniYUnit: hP / oniTH,
+        _oniXUnit: 100 / oniTW,
+        _oniYUnit: 100 / oniTH,
         _isOniKid: true,
         oniDev
       };
@@ -142,6 +136,7 @@ export default class Oni extends React.Component {
     var newStyle = {
       position: oniRoot? 'fixed': 'absolute',
       boxSizing: 'border-box',
+      overflow: 'auto'
       //display: 'table',
       //textAlign: 'start'
     };
@@ -150,11 +145,11 @@ export default class Oni extends React.Component {
       newStyle.border = 'thin solid hsl(120,50%,80%)';
     }
 
-    newStyle.width = wP;
-    newStyle.height = hP;
-    newStyle.left = ((oniX || 0) + oniXOffset) * _oniXUnit;
-    newStyle.top = ((oniY || 0) + oniYOffset) * _oniYUnit;
-
+    newStyle.width = `${wP}%`;
+    newStyle.height = `${hP}%`;
+    newStyle.left = `${((oniX || 0) + oniXOffset) * _oniXUnit}%`;
+    newStyle.top = `${((oniY || 0) + oniYOffset) * _oniYUnit}%`;
+/*
     if (finalTW > oniTW){
       newStyle.overflowX = 'auto';
     } else {
@@ -166,7 +161,7 @@ export default class Oni extends React.Component {
     } else {
       newStyle.overflowY = 'hidden';
     }
-
+*/
     for (var key in style){
       newStyle[key] = style[key];
     }
@@ -178,52 +173,6 @@ export default class Oni extends React.Component {
     return <OniE style={newStyle} {...otherProps}>
       {newKids}
     </OniE>;
-  }
-
-  componentDidMount(){
-    var { oniRoot, oniW, oniH, _isOniKid } = this.props;
-
-    if (_isOniKid){
-      return;
-    }
-
-    var requestingFrame = false;
-
-    this.rescale = () => {
-      if (requestingFrame) {
-        return;
-      }
-
-      requestAnimationFrame(() => {
-        if (oniRoot){
-          this.setState({
-            rootW: window.innerWidth * oniW,
-            rootH: window.innerHeight * oniH
-          });
-
-          if (oniW <= 1){
-            document.body.style.overflowX = 'hidden';
-          }
-          if (oniH <= 1){
-            document.body.style.overflowY = 'hidden';
-          }
-        } else {
-          var parent = React.findDOMNode(this).parentNode;
-          this.setState({
-            rootW: parent.offsetWidth,
-            rootH: parent.offsetHeight
-          });
-        }
-      });
-    };
-
-    this.rescale();
-
-    window.addEventListener('resize', this.rescale);
-  }
-
-  componentWillUnmount(){
-    window.removeEventListener('resize', this.rescale);
   }
 
 }
