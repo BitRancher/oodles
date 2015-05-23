@@ -17,13 +17,14 @@ export default class Oni extends React.Component {
     var {
       oniE, oniTW, oniTH, oniW, oniH,
       oniX, oniY, oniXOffset, oniYOffset,
+      oniXAlign, oniYAlign,
       oniCol, oniRoot, oniDev, oniCS,
       _isOniKid, _oniXUnit, _oniYUnit,
       style, children,
       ...otherProps
     } = this.props;
 
-    if (oniRoot){
+    if (!_isOniKid){
       _oniXUnit = 100;
       _oniYUnit = 100;
     }
@@ -89,11 +90,6 @@ export default class Oni extends React.Component {
       }
     }
 
-    if (coordArray.length){
-      console.log(JSON.stringify(coordArray.map(({ oniX, oniY }) => [oniX,oniY])),
-         setSize, setCount, this.props);
-    }
-
     var newKids = React.Children.map(children, (c, i) => {
       if (!c.props) {
         return c;
@@ -134,10 +130,14 @@ export default class Oni extends React.Component {
     var newStyle = {
       position: oniRoot? 'fixed': 'absolute',
       boxSizing: 'border-box',
-      overflow: 'auto'
+      overflow: 'auto',
       //display: 'table',
-      //textAlign: 'start'
+      textAlign: 'start'
     };
+
+    if (oniXAlign){
+      newStyle.textAlign = oniXAlign;
+    }
 
     if (oniDev){
       newStyle.border = 'thin solid hsl(120,50%,80%)';
