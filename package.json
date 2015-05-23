@@ -22,6 +22,7 @@
     "webpack-dev-server": "^1.7.0"
   },
   "dependencies": {
-    "react": "^0.13.0"
+    "core-js": "^0.9.11",
+    "react": "^0.13.3"
   }
 }

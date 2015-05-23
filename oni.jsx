@@ -1,5 +1,5 @@
-import React from 'react';
-
+//import React from 'react';
+import React from './react';
 
 export default class Oni extends React.Component {
 
@@ -10,7 +10,8 @@ export default class Oni extends React.Component {
     oniW: 1,
     oniH: 1,
     oniXOffset: 0,
-    oniYOffset: 0
+    oniYOffset: 0,
+    _isOni: true
   };
 
   render(){
@@ -91,7 +92,7 @@ export default class Oni extends React.Component {
     }
 
     var newKids = React.Children.map(children, (c, i) => {
-      if (!c.props) {
+      if (!c.props || !c.props._isOni) {
         return c;
       }
 
