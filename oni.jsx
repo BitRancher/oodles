@@ -24,14 +24,12 @@ export default class Oni extends React.Component {
     } = this.props;
 
     if (oniRoot){
-      _oniXUnit = 100;//this.state.rootW;
-      _oniYUnit = 100;//this.state.rootH;
+      _oniXUnit = 100;
+      _oniYUnit = 100;
     }
 
     var wP = _oniXUnit * oniW;
     var hP = _oniYUnit * oniH;
-
-    //console.log('w h', wP, hP, _oniXUnit, _oniYUnit, oniW, oniH);
 
     var slotsNeeded = React.Children.count(children);
     var finalTW = oniTW;
@@ -149,24 +147,10 @@ export default class Oni extends React.Component {
     newStyle.height = `${hP}%`;
     newStyle.left = `${((oniX || 0) + oniXOffset) * _oniXUnit}%`;
     newStyle.top = `${((oniY || 0) + oniYOffset) * _oniYUnit}%`;
-/*
-    if (finalTW > oniTW){
-      newStyle.overflowX = 'auto';
-    } else {
-      newStyle.overflowX = 'hidden';
-    }
 
-    if (finalTH > oniTH){
-      newStyle.overflowY = 'auto';
-    } else {
-      newStyle.overflowY = 'hidden';
-    }
-*/
     for (var key in style){
       newStyle[key] = style[key];
     }
-
-    //console.log('oni', this.props, finalTW, oniTW, newStyle.overflowX, this.state);
 
     var OniE = oniE;
 
