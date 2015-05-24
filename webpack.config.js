@@ -22,8 +22,11 @@ module.exports = {
   },
   module: {
     loaders: [{
+      test: /^.+(csp).+\.js$/,
+      loaders: ['babel?optional=runtime']
+    }, {
       test: /^(?!.*(bower_components|node_modules))+.+\.jsx?$/,
-      loaders: ['react-hot', 'babel']
+      loaders: ['react-hot', 'babel?optional=runtime']
     }]
   }
 };

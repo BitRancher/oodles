@@ -22,7 +22,11 @@
     "webpack-dev-server": "^1.7.0"
   },
   "dependencies": {
+    "babel-runtime": "^5.4.7",
     "core-js": "^0.9.11",
+    "ease-component": "^1.0.0",
+    "immutable": "^3.7.3",
+    "js-csp": "^0.4.1",
     "react": "^0.13.3"
   }
 }
