@@ -38,7 +38,7 @@ export default class Home extends React.Component {
 
   static defaultProps = { onDemoClick(){} };
 
-  state = { currentDemo: null };
+  state = { currentDemo: 'Oni' };
 
   render() {
     if (this.state.currentDemo){
@@ -62,16 +62,14 @@ export default class Home extends React.Component {
       </O>
     } else {
       return <O root={true} d='column'>
-        <O e='h1' hF={1/17} crossAlign='center'>Demos</O>
+        <O e='h1' hF={1/17} crossAlign='center'>
+          Demos
+        </O>
         <O>
           {renderDemos(demos, this._onDemoClick.bind(this))}
         </O>
       </O>;
     }
-  }
-
-  shouldComponentUpdate(nextProps, nextState){
-    return this.state.currentDemo !== nextState.currentDemo;
   }
 
   _onDemoClick(e){

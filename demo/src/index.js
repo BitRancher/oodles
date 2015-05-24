@@ -47,20 +47,23 @@ var pageCells = pageList.map((P, i) =>
 
 class Home extends React.Component {
   render(){
-    return <O oniTW={2} oniTH={2}>
+    return <O oniTW={2} oniTH={2} style={{ border: 'thick solid black' }}>
       {pageCells}
     </O>;
   }
 }
 
-const renderTopNav = yOffset => <O oniTW={3}>
-  <O oniE='button' onClick={()=>{ console.log('click'); Actions.returnHome(); }}>
+const renderTopNav = (disabled, yOffset) => <O oniTW={3}>
+  <O oniE='button' onClick={Actions.returnHome}>
     Home
   </O>
 </O>;
 
-const renderBottomNav = yOffset => <O oniTW={3}>
-  <O oniE='button' onClick={Actions.switchPage}>
+const renderBottomNav = (disabled, yOffset) => <O oniTW={5}>
+  <O oniE='button' onClick={Actions.switchPage.bind(0, false)}>
+    Previous
+  </O>
+  <O oniX={4} oniE='button' onClick={Actions.switchPage}>
     Next
   </O>
 </O>;
@@ -68,27 +71,29 @@ const renderBottomNav = yOffset => <O oniTW={3}>
 function renderFromStore(store){
   var Page = store.get('currentPage');
   var NewPage = store.get('incomingPage');
-  console.log('pages', Page, NewPage);
 
-  var sections = [];
+  var root = <O oniDev={1} style={{ overflow: 'hidden' }}>
 
-  var root = <O oniDev={1}>
-    {!Page && <Home />}
-
-    {Page && <O oniTH={9} oniCol={1}>
+    {Page && <O oniTH={9} oniCol={1} oniY={store.get('pageY')}>
       {renderTopNav()}
 
-      <O oniH={7} style={{ overflow: 'hidden' }}>
-        {Page && <O oniX={store.get('pagePos')} >
+      <O oniH={7} style={{ overflow: 'hidden' }} >
+        {Page && <O oniX={store.get('pageX')}>
           <Page />
         </O>}
 
-        {NewPage && <O oniX={store.get('newPagePos')} >
+        {NewPage && <O oniX={store.get('newPageX')} >
           <NewPage />
         </O>}
       </O>
 
       {renderBottomNav()}
+    </O>}
+
+    {store.get('showHome') && <O oniX={0} oniY={store.get('homeY')}
+      style={{ backgroundColor: 'white' }}
+    >
+      <Home />
     </O>}
   </O>;
 
@@ -96,7 +101,7 @@ function renderFromStore(store){
 }
 
 setChangeCallback(store => {
-  //console.log(store.toJS());
+  console.log(store.toJS());
   renderFromStore(store);
 });
 

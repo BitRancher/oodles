@@ -5,15 +5,18 @@ import I from 'immutable';
 import S from './store';
 
 
+const ANIMATION_DURATION = 500;
+
 S.update(()=> I.fromJS({
   currentPage: null,
   prevPage: {},
   nextPage: {},
   pageMap: {},
   topNavOffset: 1,
-  bottomNavOffset: 1
-  //pagePos: 0,
-  //newPagePos: -1
+  bottomNavOffset: 1,
+  showHome: true
+  //pageX: 0,
+  //newPageX: -1
 }));
 
 
@@ -101,6 +104,7 @@ var commands = {
       s.set('currentPage', page)
        .set('prevPage', s.getIn(['pageMap', page, 'prevPage']))
        .set('nextPage', s.getIn(['pageMap', page, 'nextPage']))
+       .set('showHome', false)
     );
   },
 
@@ -118,10 +122,10 @@ var commands = {
         .set('nextPage', s.getIn(['pageMap', incomingPage, 'nextPage']))
     );
 
-    var doneEvent = processes.easeSeries(1000, x =>
+    var doneEvent = processes.easeSeries(ANIMATION_DURATION, x =>
       S.update(s =>
-        s.set('pagePos', nextPage? -x: x)
-         .set('newPagePos', nextPage? (1-x): (-1+x))
+        s.set('pageX', nextPage? -x: x)
+         .set('newPageX', nextPage? (1-x): (-1+x))
       )
     );
 
@@ -131,7 +135,7 @@ var commands = {
 
       S.update(s =>
         s.set('currentPage', incomingPage)
-         .delete('incomingPage').delete('pagePos').delete('newPagePos')
+         .delete('incomingPage').delete('pageX').delete('newPageX')
          .set('commandsDisabled', false)
       );
     });
@@ -142,11 +146,29 @@ var commands = {
       return;
     }
 
-    var homePage = S.query(s => s.get('homePage'));
-    S.update(s => s.set('prevPage', homePage));
-    commands.switchPage(false);
+    S.update(s =>
+      s.set('commandsDisabled', true)
+       .set('homeY', -1)
+       .set('showHome', true)
+    );
 
-    //S.update(s => s.delete('currentPage'));
+    var doneEvent = processes.easeSeries(ANIMATION_DURATION,
+      y => S.update(
+        s => s.set('homeY', y - 1)
+              .set('pageY', y)
+      )
+
+    );
+
+    C.go(function*(){
+      yield doneEvent;
+      S.update(s =>
+        s.delete('currentPage')
+         .set('homeY', 0)
+         .set('pageY', 0)
+         .set('commandsDisabled', false)
+      );
+    });
   }
 
 };
