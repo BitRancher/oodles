@@ -6,15 +6,17 @@ import S from './store';
 
 
 S.update(()=> I.fromJS({
-  currentPage: {},
+  currentPage: null,
   prevPage: {},
   nextPage: {},
-  pageMap: {}
+  pageMap: {},
+  topNavOffset: 1,
+  bottomNavOffset: 1
   //pagePos: 0,
   //newPagePos: -1
 }));
 
-var pageMap = I.Map();
+//var pageMap = I.Map();
 
 var channels = {
   select: {
@@ -27,39 +29,6 @@ var channels = {
 
 
 var processes = {
-
-  /*ease(type, transactor){
-    var doneChan = C.chan();
-
-    C.go(function*(){
-      var start = Date.now();
-      var duration = 500;
-      var elapsed = 0;
-
-      var animSteps = C.chan();
-      var animStep;
-
-      var step = () => {
-        if (animStep !== C.CLOSED){
-          C.putAsync(animSteps);
-          requestAnimationFrame(step);
-        }
-      }
-      step();
-
-      while (elapsed < duration){
-        animStep =  yield animSteps;
-        var x = E[type](elapsed / duration);
-        transactor(x);
-        elapsed = Date.now() - start;
-      }
-
-      animSteps.close();
-      doneChan.close();
-    });
-
-    return doneChan;
-  },*/
 
   ease(duration, type = 'outCube'){
     var animSteps = C.chan();
@@ -111,6 +80,8 @@ var processes = {
 var commands = {
 
   registerPageList(pageList){
+    var pageMap = I.Map();
+
     pageList.forEach((p, i) => {
       var prevPage = (i === 0)? pageList[pageList.length - 1]: pageList[i - 1];
       var nextPage = (i === pageList.length - 1)? pageList[0]: pageList[i + 1];
@@ -120,13 +91,19 @@ var commands = {
         .setIn([p, 'nextPage'], nextPage);
     });
 
-    S.update(s =>
+    S.update(s => s.set('pageMap', pageMap));
+
+    /*S.update(s =>
       s.set('currentPage', pageList[0])
        .set('prevPage', pageMap.getIn([pageList[0], 'prevPage']))
        .set('nextPage', pageMap.getIn([pageList[0], 'nextPage']))
-    );
+    );*/
 
     console.log(pageMap.toJS());
+  },
+
+  selectPage(page){
+
   },
 
   switchPage(nextPage = true){
@@ -139,8 +116,8 @@ var commands = {
     S.update(s =>
        s.set('commandsDisabled', true)
         .set('incomingPage', incomingPage)
-        .set('prevPage', pageMap.getIn([incomingPage, 'prevPage']) )
-        .set('nextPage', pageMap.getIn([incomingPage, 'nextPage']) )
+        .set('prevPage', s.getIn(['pageMap', incomingPage, 'prevPage']) )
+        .set('nextPage', s.getIn(['pageMap', incomingPage, 'nextPage']) )
     );
 
     var doneEvent = processes.easeSeries(1000, x =>
@@ -167,12 +144,12 @@ var commands = {
       return;
     }
 
-
+    S.update(s =>
+      s.set('commandsDisabled', true)
+    );
   }
 
 };
 
-
-//commands.switchPage();
-
-export default commands;
+S.Actions = commands;
+export default S;

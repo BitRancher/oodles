@@ -1,11 +1,9 @@
 import React from '../../react';
-import C from 'js-csp';
 
 import O from '../../oni';
 
-import Store from './store';
-import Commands from './demo-store';
-import App from './app';
+import { query, setChangeCallback, Actions } from './demo-store';
+//import App from './app';
 
 
 class Page1 extends React.Component {
@@ -34,26 +32,71 @@ class Page3 extends React.Component {
   }
 }
 
+class Home extends React.Component {
+  render(){
+    return <div>
+      Home
+    </div>;
+  }
+}
 
+
+class App extends React.Component {
+
+  render(){
+    return <div>
+      {this.props.components
+      }
+    </div>;
+  }
+
+}
+
+var pageList = [Page1, Page2, Page3];
+
+Actions.registerPageList(pageList);
+
+const pageCells = pageList.map((P, i) => <O key={i}
+  onClick={Actions.selectPage(P)}
+>
+  <P />
+</O>);
+
+const homeNode = <O oniTW={2} oniTH={2}>
+  {pageCells}
+</O>;
 
 function renderFromStore(store){
   var Page = store.get('currentPage');
-  React.render(<Page store={store} />, document.getElementById('root'));
+  //var
+
+
+  var sections = [];
+
+  var root = <O oniDev={1}>
+    {Page && <O>Insert Page</O>
+
+    }
+
+    {!Page && homeNode}
+  </O>;
+
+  React.render(root, document.getElementById('root'));
 }
 
-Store.setChangeCallback(store => {
+setChangeCallback(store => {
   console.log(store.toJS());
   renderFromStore(store);
 });
 
-Commands.registerPageList([Page1, Page2, Page3]);
 
-renderFromStore(Store.query());
+renderFromStore(query());
 
 
-Commands.switchPage();
+//Commands.switchPage();
 
+// add commands to console for development
 window.c = {};
-for (var key in Commands){
-  window.c[key] = Commands[key];
+for (var key in Actions){
+  window.c[key] = Actions[key];
 }

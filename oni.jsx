@@ -1,6 +1,7 @@
 //import React from 'react';
 import React from './react';
 
+
 export default class Oni extends React.Component {
 
   static defaultProps = {
@@ -14,7 +15,12 @@ export default class Oni extends React.Component {
     _isOni: true
   };
 
+
   render(){
+    if (this.context){
+      console.log('context', this.context);
+    }
+
     var {
       oniE, oniTW, oniTH, oniW, oniH,
       oniX, oniY, oniXOffset, oniYOffset,
@@ -55,9 +61,9 @@ export default class Oni extends React.Component {
       var setCount = 1;
       var currentSetTotal = 0;
 
-      coordArray = [];
-      React.Children.forEach(children, c => {
-        if (!c.props){
+      coordArray = {};
+      React.Children.forEach(children, (c, i) => {
+        if (!c || !c.props || !c.props._isOni){
           return;
         }
 
@@ -78,10 +84,10 @@ export default class Oni extends React.Component {
 
         currentSetTotal += itemUnits;
 
-        coordArray.push({
+        coordArray[i] = {
           oniX: oniCol? setPos: itemPos,
           oniY: oniCol? itemPos: setPos
-        });
+        };
       });
 
       if (setCount <= (oniCol? oniTW: oniTH)){
@@ -92,7 +98,7 @@ export default class Oni extends React.Component {
     }
 
     var newKids = React.Children.map(children, (c, i) => {
-      if (!c.props || !c.props._isOni) {
+      if (!c || !c.props || !c.props._isOni) {
         return c;
       }
 
