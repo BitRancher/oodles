@@ -15,12 +15,7 @@ export default class Oni extends React.Component {
     _isOni: true
   };
 
-
   render(){
-    if (this.context){
-      console.log('context', this.context);
-    }
-
     var {
       oniE, oniTW, oniTH, oniW, oniH,
       oniX, oniY, oniXOffset, oniYOffset,

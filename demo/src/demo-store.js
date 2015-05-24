@@ -16,7 +16,6 @@ S.update(()=> I.fromJS({
   //newPagePos: -1
 }));
 
-//var pageMap = I.Map();
 
 var channels = {
   select: {
@@ -79,7 +78,7 @@ var processes = {
 
 var commands = {
 
-  registerPageList(pageList){
+  registerPageList({ homePage, pageList }){
     var pageMap = I.Map();
 
     pageList.forEach((p, i) => {
@@ -88,22 +87,21 @@ var commands = {
 
       pageMap = pageMap.set(p, I.Map())
         .setIn([p, 'prevPage'], prevPage)
-        .setIn([p, 'nextPage'], nextPage);
+        .setIn([p, 'nextPage'], nextPage)
+        .set('homePage', homePage);
     });
 
     S.update(s => s.set('pageMap', pageMap));
 
-    /*S.update(s =>
-      s.set('currentPage', pageList[0])
-       .set('prevPage', pageMap.getIn([pageList[0], 'prevPage']))
-       .set('nextPage', pageMap.getIn([pageList[0], 'nextPage']))
-    );*/
-
-    console.log(pageMap.toJS());
+    //console.log(pageMap.toJS());
   },
 
   selectPage(page){
-
+    S.update(s =>
+      s.set('currentPage', page)
+       .set('prevPage', s.getIn(['pageMap', page, 'prevPage']))
+       .set('nextPage', s.getIn(['pageMap', page, 'nextPage']))
+    );
   },
 
   switchPage(nextPage = true){
@@ -116,8 +114,8 @@ var commands = {
     S.update(s =>
        s.set('commandsDisabled', true)
         .set('incomingPage', incomingPage)
-        .set('prevPage', s.getIn(['pageMap', incomingPage, 'prevPage']) )
-        .set('nextPage', s.getIn(['pageMap', incomingPage, 'nextPage']) )
+        .set('prevPage', s.getIn(['pageMap', incomingPage, 'prevPage']))
+        .set('nextPage', s.getIn(['pageMap', incomingPage, 'nextPage']))
     );
 
     var doneEvent = processes.easeSeries(1000, x =>
@@ -140,16 +138,20 @@ var commands = {
   },
 
   returnHome(){
-    if (S.query('commandsDisabled')){
+    if (S.query(s => s.get('commandsDisabled'))){
       return;
     }
 
-    S.update(s =>
-      s.set('commandsDisabled', true)
-    );
+    var homePage = S.query(s => s.get('homePage'));
+    S.update(s => s.set('prevPage', homePage));
+    commands.switchPage(false);
+
+    //S.update(s => s.delete('currentPage'));
   }
 
 };
 
+
 S.Actions = commands;
+
 export default S;
